@@ -8,7 +8,7 @@ import time  # for timing
 
 # Global parameters
 parameter_file = 'default_parameters.ini'  # the main parameters file
-# the main path were all the data directories are
+# the main path where all the data directories are
 data_main_directory = Path('data')
 # dictionary that holds the input parameters, key = parameter name, value = value
 parameters_dictionary = dict()
@@ -95,7 +95,20 @@ def k_shingles():
     docs_k_shingles = []  # holds the k-shingles of each document
 
     # implement your code here
+    k = parameters_dictionary.get("k")
 
+    # i in range(len(document_list))
+    for key in document_list:
+        document = document_list[key]
+        words = document.split()
+        for index in range(len(document) - k + 1):
+            shingle = words[index:index + k]
+            shingle = ' '.join(shingle)
+            if shingle not in docs_k_shingles:
+                docs_k_shingles.append(shingle)
+            else:
+                del shingle
+                index -= 1
     return docs_k_shingles
 
 

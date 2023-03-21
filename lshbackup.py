@@ -5,16 +5,12 @@ import sys  # for system errors and printouts
 from pathlib import Path  # for paths of files
 import os  # for reading the input data
 import time  # for timing
-import pandas as pd
 
 # Global parameters
 parameter_file = 'default_parameters.ini'  # the main parameters file
-# the main path where all the data directories are
-data_main_directory = Path('data')
-# dictionary that holds the input parameters, key = parameter name, value = value
-parameters_dictionary = dict()
-# dictionary of the input documents, key = document id, value = the document
-document_list = dict()
+data_main_directory = Path('data')  # the main path were all the data directories are
+parameters_dictionary = dict()  # dictionary that holds the input parameters, key = parameter name, value = value
+document_list = dict()  # dictionary of the input documents, key = document id, value = the document
 
 
 # DO NOT CHANGE THIS METHOD
@@ -84,8 +80,7 @@ def naive():
     similarity_matrix = [0 for x in range(num_elems)]
     for i in range(len(docs_Sets)):
         for j in range(i + 1, len(docs_Sets)):
-            similarity_matrix[get_triangle_index(i, j, len(docs_Sets))] = jaccard(
-                docs_Sets[i], docs_Sets[j])
+            similarity_matrix[get_triangle_index(i, j, len(docs_Sets))] = jaccard(docs_Sets[i], docs_Sets[j])
 
     return similarity_matrix
 
@@ -93,28 +88,11 @@ def naive():
 # METHOD FOR TASK 1
 # Creates the k-Shingles of each document and returns a list of them
 def k_shingles():
-    docs_k_shingles = set()  # holds the k-shingles of each document
+    docs_k_shingles = []  # holds the k-shingles of each document
+
     # implement your code here
 
-    # Get the value k from the parameters dictionary
-    k = parameters_dictionary.get("k")
-
-    # Iterate through the documents in document list
-    for key in document_list:
-
-        document = document_list[key]
-        words = document.split()
-
-        for index in range(len(document) - k + 1):
-            shingle = words[index:index + k]
-            shingle = ' '.join(shingle)
-
-            if shingle not in docs_k_shingles:
-                docs_k_shingles.add(shingle)
-            else:
-                del shingle
-                index -= 1
-    return list(docs_k_shingles)
+    return docs_k_shingles
 
 
 # METHOD FOR TASK 2
@@ -122,90 +100,8 @@ def k_shingles():
 def signature_set(k_shingles):
     docs_sig_sets = []
 
-    for key in document_list:
-        document = document_list[key]
-        document_signature = []
-        for shingle in k_shingles:
-            if shingle in document:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        docs_sig_sets.append(document_signature)
-    return docs_sig_sets
-
-    docs_sig_sets = []
-
-    all_zeroes_vector = [0 for _ in k_shingles]
-    document_matrix = pd.DataFrame([])
-
-    all_documents = []
-    for key in document_list:
-        all_documents.append(all_zeroes_vector)
-    documents_df = pd.DataFrame(all_documents)
-
-    for shingle_index, shingle in enumerate(k_shingles):
-        for doc_index, doc in enumerate(document_list):
-            if shingle in doc:
-                documents_df.iloc[shingle_index, doc_index] = 1
-
-    return document_matrix
-
-   # Check if each k-shingle is in the set for each document
-    for k_shingle in k_shingles:
-        document_signature = []
-        for k_shingles_set in doc_k_shingles:
-            if k_shingle in k_shingles_set:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        docs_sig_sets.append(document_signature)
-
-    return docs_sig_sets
-
-    docs_sig_sets = []
-    # Create a set of all k-shingles for each document
-    doc_k_shingles = []
-    k = parameters_dictionary.get("k")
-    for key in document_list:
-        document = document_list[key]
-        k_shingles_set = set()
-        for i in range(len(document) - k + 1):
-            k_shingle = document[i:i+k]
-            k_shingles_set.add(k_shingle)
-        doc_k_shingles.append(k_shingles_set)
-
-    i = 0
-
-    docs_sig_sets = []
     # implement your code here
-    i = 0
 
-    for document in document_list.values():
-        doc_k_shingles = set(document.split())
-        document_signature = [
-            1 if shingle in doc_k_shingles else 0 for shingle in k_shingles]
-        docs_sig_sets.append(document_signature)
-        while i < 1:
-            i += 1
-            print(docs_sig_sets)
-    return docs_sig_sets
-
-    k = parameters_dictionary.get("k")
-    i = 0
-    for key in document_list:
-        document = document_list[key]
-        words = document.split()
-        document_signature = []
-        for index in range(len(document) - k + 1):
-            shingle = words[index:index + k]
-            shingle = ' '.join(shingle)
-            if shingle in k_shingles:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        # while i < 1:
-            # i += 1
-            # print(docs_sig_sets)
     return docs_sig_sets
 
 
@@ -264,7 +160,6 @@ def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
 if __name__ == '__main__':
     # Reading the parameters
     read_parameters()
-    # print(parameters_dictionary['data'])
 
     # Reading the data
     print("Data reading...")
@@ -316,14 +211,12 @@ if __name__ == '__main__':
     # Candidate similarities
     print("Starting to calculate similarities of the candidate documents...")
     t12 = time.time()
-    lsh_similarity_matrix = candidates_similarities(
-        candidate_docs, min_hash_signatures)
+    lsh_similarity_matrix = candidates_similarities(candidate_docs, min_hash_signatures)
     t13 = time.time()
     print("Candidate documents similarity calculation took", t13 - t12, "sec\n\n")
 
     # Return the over t similar pairs
-    print("Starting to get the pairs of documents with over ",
-          parameters_dictionary['t'], "% similarity...")
+    print("Starting to get the pairs of documents with over ", parameters_dictionary['t'], "% similarity...")
     t14 = time.time()
     pairs = return_results(lsh_similarity_matrix)
     t15 = time.time()
@@ -336,11 +229,9 @@ if __name__ == '__main__':
     if parameters_dictionary['naive']:
         print("Starting to calculate the false negatives and positives...")
         t16 = time.time()
-        false_negatives, false_positives = count_false_neg_and_pos(
-            lsh_similarity_matrix, naive_similarity_matrix)
+        false_negatives, false_positives = count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix)
         t17 = time.time()
-        print("False negatives = ", false_negatives,
-              "\nFalse positives = ", false_positives, "\n\n")
+        print("False negatives = ", false_negatives, "\nFalse positives = ", false_positives, "\n\n")
 
     if parameters_dictionary['naive']:
         print("Naive similarity calculation took", t3 - t2, "sec")

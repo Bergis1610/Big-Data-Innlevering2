@@ -6,6 +6,8 @@ from pathlib import Path  # for paths of files
 import os  # for reading the input data
 import time  # for timing
 import pandas as pd
+import random
+import numpy as np
 
 # Global parameters
 parameter_file = 'default_parameters.ini'  # the main parameters file
@@ -209,21 +211,52 @@ def signature_set(k_shingles):
     return docs_sig_sets
 
 
-# METHOD FOR TASK 3
+""" # METHOD FOR TASK 3
 # Creates the minHash signatures after simulation of permutations
 def minHash(docs_signature_sets):
-    min_hash_signatures = []
 
+    primes = [i for i in range(p, q) if is_prime(i)]
+    n = random.choice(primes)
+    min_hash_signatures = []
+    #a*x + b%p
     # implement your code here
 
     return min_hash_signatures
+ """
+random.seed(11)
+
+
+def minHash(document_vector):
+    signature = []
+
+    number_of_hashes = parameters_dictionary.get("permutations")
+
+    # Generate random permutations
+    permutations = []
+    for i in range(number_of_hashes):
+        permutation = list(range(len(document_vector)))
+        random.shuffle(permutation)
+        permutations.append(permutation)
+
+    # Make the minhash signature
+    for i in range(1, number_of_hashes):
+        hash_values = []
+        for permutation_value_pair in zip(permutations[i], document_vector):
+            p, v = permutation_value_pair
+            if v == 1:
+                hash_values.append(p)
+        print(hash_values)
+
+        signature.append(min(hash_values))
+
+    return signature
 
 
 # METHOD FOR TASK 4
 # Hashes the MinHash Signature Matrix into buckets and find candidate similar documents
 def lsh(m_matrix):
     candidates = []  # list of candidate sets of documents for checking similarity
-
+    print(m_matrix)
     # implement your code here
 
     return candidates

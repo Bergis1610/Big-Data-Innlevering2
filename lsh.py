@@ -92,8 +92,7 @@ def naive():
     return similarity_matrix
 
 
-# METHOD FOR TASK 1
-# Creates the k-Shingles of each document and returns a list of them
+""" 
 def k_shingles():
     docs_k_shingles = set()  # holds the k-shingles of each document
     # implement your code here
@@ -116,98 +115,50 @@ def k_shingles():
             else:
                 del shingle
                 index -= 1
-    return list(docs_k_shingles)
+    return list(docs_k_shingles) """
+
+# METHOD FOR TASK 1
+# Creates the k-Shingles of each document and returns a list of them
+
+
+def k_shingles():
+    docs_k_shingles = []  # holds the k-shingles of each document
+    # implement your code here
+
+    # Get the value k from the parameters dictionary
+    k = parameters_dictionary.get("k")
+
+    for key in document_list:
+        document = document_list[key]
+        words = document.split()
+
+        shingles_in_doc = []
+        for i in range(len(words)-k+1):
+
+            shingle = words[i:i + k]
+
+            shingle = ' '.join(shingle)
+
+            if shingle not in shingles_in_doc:
+                shingles_in_doc.append(shingle)
+
+        docs_k_shingles.append(shingles_in_doc)
+
+    return docs_k_shingles
 
 
 # METHOD FOR TASK 2
 # Creates a signatures set of the documents from the k-shingles list
-def signature_set(k_shingles):
+def signature_set(shingles):
     docs_sig_sets = []
-
-    for key in document_list:
-        document = document_list[key]
-        document_signature = []
-        for shingle in k_shingles:
-            if shingle in document:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        docs_sig_sets.append(document_signature)
-    return docs_sig_sets
-
-    docs_sig_sets = []
-
-    all_zeroes_vector = [0 for _ in k_shingles]
-    document_matrix = pd.DataFrame([])
-
-    all_documents = []
-    for key in document_list:
-        all_documents.append(all_zeroes_vector)
-    documents_df = pd.DataFrame(all_documents)
-
-    for shingle_index, shingle in enumerate(k_shingles):
-        for doc_index, doc in enumerate(document_list):
-            if shingle in doc:
-                documents_df.iloc[shingle_index, doc_index] = 1
-
-    return document_matrix
-
-   # Check if each k-shingle is in the set for each document
-    for k_shingle in k_shingles:
-        document_signature = []
-        for k_shingles_set in doc_k_shingles:
-            if k_shingle in k_shingles_set:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        docs_sig_sets.append(document_signature)
-
-    return docs_sig_sets
-
-    docs_sig_sets = []
-    # Create a set of all k-shingles for each document
-    doc_k_shingles = []
-    k = parameters_dictionary.get("k")
-    for key in document_list:
-        document = document_list[key]
-        k_shingles_set = set()
-        for i in range(len(document) - k + 1):
-            k_shingle = document[i:i+k]
-            k_shingles_set.add(k_shingle)
-        doc_k_shingles.append(k_shingles_set)
-
-    i = 0
-
-    docs_sig_sets = []
-    # implement your code here
-    i = 0
-
-    for document in document_list.values():
-        doc_k_shingles = set(document.split())
-        document_signature = [
-            1 if shingle in doc_k_shingles else 0 for shingle in k_shingles]
-        docs_sig_sets.append(document_signature)
-        while i < 1:
-            i += 1
-            print(docs_sig_sets)
-    return docs_sig_sets
-
-    k = parameters_dictionary.get("k")
-    i = 0
-    for key in document_list:
-        document = document_list[key]
-        words = document.split()
-        document_signature = []
-        for index in range(len(document) - k + 1):
-            shingle = words[index:index + k]
-            shingle = ' '.join(shingle)
-            if shingle in k_shingles:
-                document_signature.append(1)
-            else:
-                document_signature.append(0)
-        # while i < 1:
-            # i += 1
-            # print(docs_sig_sets)
+    for key in range(0, len(document_list)):
+        shingle = shingles[key]
+        signature_set_shingle = set()
+        for i in range(len(shingles[key])):
+            hash_val = hash(shingle[i])
+            if hash_val not in signature_set_shingle:
+                signature_set_shingle.add(hash_val)
+        docs_sig_sets.append(signature_set_shingle)
     return docs_sig_sets
 
 

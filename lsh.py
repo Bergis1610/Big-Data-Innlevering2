@@ -183,7 +183,7 @@ def signature_set(shingles):
         # print(signature_set_shingle)
         docs_signature_sets.append(signature_set_shingle)
     return docs_signature_sets
-    docs_sig_sets = []
+    """ docs_sig_sets = []
     for key in range(0, len(document_list)):
         shingle = shingles[key]
         signature_set_shingle = set()
@@ -192,7 +192,7 @@ def signature_set(shingles):
             if hash_val not in signature_set_shingle:
                 signature_set_shingle.add(hash_val)
         docs_sig_sets.append(signature_set_shingle)
-    return docs_sig_sets
+    return docs_sig_sets """
 
 
 """ # METHOD FOR TASK 3
@@ -267,7 +267,7 @@ def minHash(document_vector):
                     signatures[i][j] = hash_value
     return signatures
 
-    signature = []
+    """ signature = []
 
     number_of_hashes = parameters_dictionary.get("permutations")
 
@@ -289,7 +289,7 @@ def minHash(document_vector):
 
         signature.append(min(hash_values))
 
-    return signature
+    return signature """
 
 
 # METHOD FOR TASK 4
@@ -360,6 +360,8 @@ def lsh(m_matrix):
 # Calculates the similarities of the candidate documents
 def candidates_similarities(candidate_docs, min_hash_matrix):
     similarity_matrix = []
+    print("candidates ", candidate_docs)
+    print("\n\n Min hash", min_hash_matrix)
 
     # implement your code here
     return similarity_matrix

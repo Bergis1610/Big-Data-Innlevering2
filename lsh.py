@@ -1,6 +1,8 @@
 # This is the code for the LSH project of TDT4305
 
-import configparser  # for reading the parameters file
+import configparser
+import hashlib
+import itertools  # for reading the parameters file
 import sys  # for system errors and printouts
 from pathlib import Path  # for paths of files
 import os  # for reading the input data
@@ -150,6 +152,37 @@ def k_shingles():
 # METHOD FOR TASK 2
 # Creates a signatures set of the documents from the k-shingles list
 def signature_set(shingles):
+    # docs_sig_sets = []
+    # print(shingles)
+
+    docs_signature_sets = []
+    # print("len", len(document_list))
+    for key in range(0, len(document_list)):
+        # print("key ", key)
+        # print(document_list[key])
+        # print(len(document_list))
+
+        shingle = shingles[key]
+        # print("shingle", shingle)
+        signature_set_shingle = set()
+
+        # print(type(document_list))
+
+        # for shingle in document_list
+        # document = document_list[key+1]
+
+        # print("doc: ",document)
+        for i in range(len(shingles[key])):
+            hash_val = hash(shingle[i])
+            # print(hash_val)
+            if hash_val not in signature_set_shingle:
+                signature_set_shingle.add(hash_val)
+
+            # shing = shingles[key][i]
+            # print(shing in document)
+        # print(signature_set_shingle)
+        docs_signature_sets.append(signature_set_shingle)
+    return docs_signature_sets
     docs_sig_sets = []
     for key in range(0, len(document_list)):
         shingle = shingles[key]
@@ -177,7 +210,63 @@ def minHash(docs_signature_sets):
 random.seed(11)
 
 
+def is_prime(n):
+    if n == 2 or n == 3:
+        return True
+    if n < 2 or n % 2 == 0:
+        return False
+    if n < 9:
+        return True
+    if n % 3 == 0:
+        return False
+    r = int(n**0.5)
+    # since all primes > 3 are of the form 6n ± 1
+    # start with f=5 (which is prime)
+    # and test f, f+2 for being prime
+    # then loop by 6.
+    f = 5
+    while f <= r:
+        if n % f == 0:
+            return False
+        if n % (f+2) == 0:
+            return False
+        f += 6
+    return True
+
+
 def minHash(document_vector):
+    num_permutations = parameters_dictionary.get("permutations")
+    num_documents = len(document_list)
+
+    signatures = np.full((num_permutations, num_documents), np.inf)
+    count = 0
+    perms = 0
+    docies = 0
+    for i in range(num_permutations):
+        a = random.randint(1, 400)
+        b = random.randint(1, 400)
+        cont = True
+        while cont:
+            # Generate a random number in the range [lower_bound, upper_bound]
+            p = random.randint(400, 1000)
+
+            # Check if the number is prime
+            if is_prime(p):
+                cont = False
+        perms += 1
+        for j in range(num_documents):
+            docies += 1
+            localcount = 1
+            for sig in document_vector[j]:
+
+                hash_value = (a * sig + b) % p
+                count += 1
+                localcount += 1
+
+                if hash_value < signatures[i][j]:
+                    signatures[i][j] = hash_value
+    return signatures
+
     signature = []
 
     number_of_hashes = parameters_dictionary.get("permutations")
@@ -206,11 +295,65 @@ def minHash(document_vector):
 # METHOD FOR TASK 4
 # Hashes the MinHash Signature Matrix into buckets and find candidate similar documents
 def lsh(m_matrix):
+
     candidates = []  # list of candidate sets of documents for checking similarity
     print(m_matrix)
     # implement your code here
+    buckets = parameters_dictionary.get("buckets")
+    # permutations = parameters_dictionary.get("permutations")
+    # bands = len(m_matrix[0])/buckets
+    # print(bands)
+    # for signature in m_matrix:
+    bucket_dict = {}
+    for i in range(buckets):
+        bucket_dict[i] = set()
+
+    # Hash each column of the signature matrix into a bucket
+    for j in range(m_matrix.shape[1]):
+        hash_val = hash(tuple(m_matrix[:, j]))
+        bucket_idx = hash_val % buckets
+        bucket_dict[bucket_idx].add(j)
+
+    # Find candidate similar documents from the buckets
+    candidates = set()
+    for bucket in bucket_dict.values():
+        print(len(bucket))
+        if len(bucket) > 1:
+            pairs = list(itertools.combinations(bucket, 2))
+            print(pairs)
+            candidates.update(pairs)
 
     return candidates
+
+    # Calculate the number of rows per band
+    buckets = parameters_dictionary.get("buckets")
+    r = int(len(m_matrix[0])/buckets)
+
+    # Initialize a dictionary to store the candidate document pairs
+    candidate_pairs = {}
+
+    # Loop over each band
+    for i in range(buckets):
+        # Hash the band using MD5
+        band_hash = hashlib.md5(
+            m_matrix[i*r:(i+1)*r, :].tobytes()).hexdigest()
+        # If the hash value is not already in the dictionary, add it with an empty list as its value
+        if band_hash not in candidate_pairs:
+            candidate_pairs[band_hash] = []
+
+        # Add the document IDs in the current band to the list associated with its hash value
+        for j in range(len(m_matrix[0])):
+            candidate_pairs[band_hash].append(j)
+    # Loop over the dictionary and find pairs of documents that are in the same bucket
+    final_candidate_pairs = []
+    for key in candidate_pairs:
+        docs_in_bucket = candidate_pairs[key]
+        for i in range(len(docs_in_bucket)):
+            for j in range(i+1, len(docs_in_bucket)):
+                final_candidate_pairs.append(
+                    (docs_in_bucket[i], docs_in_bucket[j]))
+    print(final_candidate_pairs)
+    return final_candidate_pairs
 
 
 # METHOD FOR TASK 5
@@ -219,7 +362,6 @@ def candidates_similarities(candidate_docs, min_hash_matrix):
     similarity_matrix = []
 
     # implement your code here
-
     return similarity_matrix
 
 

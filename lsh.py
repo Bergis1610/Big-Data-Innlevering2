@@ -206,8 +206,7 @@ def minHash(docs_signature_sets):
     # implement your code here
 
     return min_hash_signatures
- """
-random.seed(11)
+"""
 
 
 def is_prime(n):
@@ -234,15 +233,26 @@ def is_prime(n):
     return True
 
 
+random.seed(11)
+
+
 def minHash(document_vector):
     num_permutations = parameters_dictionary.get("permutations")
     num_documents = len(document_list)
 
-    signatures = np.full((num_permutations, num_documents), np.inf)
+    # Nye
+    signatures = np.full((num_documents, num_permutations), np.inf)
+    # Gammel
+    #signatures = np.full((num_permutations,num_documents), np.inf)
+
     count = 0
     perms = 0
     docies = 0
-    for i in range(num_permutations):
+
+    # Nye
+    for i in range(num_documents):
+        # Gammel
+        # for i in range(num_permutations):
         a = random.randint(1, 400)
         b = random.randint(1, 400)
         cont = True
@@ -254,7 +264,10 @@ def minHash(document_vector):
             if is_prime(p):
                 cont = False
         perms += 1
-        for j in range(num_documents):
+        # nye
+        for j in range(num_permutations):
+            # gammel
+            # for j in range(num_documents):
             docies += 1
             localcount = 1
             for sig in document_vector[j]:
@@ -297,7 +310,8 @@ def minHash(document_vector):
 def lsh(m_matrix):
 
     candidates = []  # list of candidate sets of documents for checking similarity
-    print(m_matrix)
+    # print(m_matrix.T)
+    #m_matrix = m_matrix.T
     # implement your code here
     buckets = parameters_dictionary.get("buckets")
     # permutations = parameters_dictionary.get("permutations")
@@ -308,19 +322,21 @@ def lsh(m_matrix):
     for i in range(buckets):
         bucket_dict[i] = set()
 
+    #print("shape ",m_matrix.shape[0])
     # Hash each column of the signature matrix into a bucket
-    for j in range(m_matrix.shape[1]):
-        hash_val = hash(tuple(m_matrix[:, j]))
+    for j in range(m_matrix.shape[0]):
+        #hash_val = hash(tuple(m_matrix[:, j]))
+        hash_val = hash(tuple(m_matrix[j, :]))
         bucket_idx = hash_val % buckets
         bucket_dict[bucket_idx].add(j)
 
     # Find candidate similar documents from the buckets
     candidates = set()
     for bucket in bucket_dict.values():
-        print(len(bucket))
+        # print(len(bucket))
         if len(bucket) > 1:
             pairs = list(itertools.combinations(bucket, 2))
-            print(pairs)
+            # print(pairs)
             candidates.update(pairs)
 
     return candidates
@@ -355,25 +371,49 @@ def lsh(m_matrix):
     print(final_candidate_pairs)
     return final_candidate_pairs
 
-
 # METHOD FOR TASK 5
 # Calculates the similarities of the candidate documents
+
+
 def candidates_similarities(candidate_docs, min_hash_matrix):
     similarity_matrix = []
-    print("candidates ", candidate_docs)
-    print("\n\n Min hash", min_hash_matrix)
+    #print("candidates ", candidate_docs)
+    #print("\n\n Min hash", min_hash_matrix)
+    #jaccard(doc1, doc2)
+    # print(min_hash_matrix)
+    for pair in candidate_docs:
+        #print("Index 1 ", pair[0])
+        #print("Index 2  ", pair[1])
+        index1 = pair[0]
+        index2 = pair[1]
+        jac = jaccard(set(min_hash_matrix[index1]), set(
+            min_hash_matrix[index2]))
+        similarity_matrix.append([index1, index2, jac])
 
     # implement your code here
     return similarity_matrix
 
-
 # METHOD FOR TASK 6
 # Returns the document pairs of over t% similarity
+
+
 def return_results(lsh_similarity_matrix):
     document_pairs = []
+    t = parameters_dictionary['t']
+    count = 0
+    for pair in lsh_similarity_matrix:
+        threshold = pair[2]
+        if threshold > t:
+            count += 1
+            id1 = pair[0]
+            id2 = pair[1]
+            print("Id1: ", id1, " Id2: ", id2, " similarity: ", threshold)
+            document_pairs.append([id1, id2])
+        # print(pair[2])
 
     # implement your code here
 
+    print("Total above threshold ", t, " :", count)
     return document_pairs
 
 
@@ -381,8 +421,18 @@ def return_results(lsh_similarity_matrix):
 def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
     false_negatives = 0
     false_positives = 0
-
     # implement your code here
+
+    t = parameters_dictionary['t']
+    print(t)
+    for pair in lsh_similarity_matrix:
+        if (pair[2] > t) and (pair not in naive_similarity_matrix):
+            false_positives += 1
+    for pair in naive_similarity_matrix:
+        if (pair not in lsh_similarity_matrix):
+            false_negatives += 1
+
+    print("shape of lsh matrix: ", len(lsh_similarity_matrix))
 
     return false_negatives, false_positives
 
@@ -451,7 +501,7 @@ if __name__ == '__main__':
 
     # Return the over t similar pairs
     print("Starting to get the pairs of documents with over ",
-          parameters_dictionary['t'], "% similarity...")
+          parameters_dictionary['t']*100, "% similarity...")
     t14 = time.time()
     pairs = return_results(lsh_similarity_matrix)
     t15 = time.time()

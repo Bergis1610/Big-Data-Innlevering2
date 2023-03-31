@@ -279,15 +279,26 @@ def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
     # implement your code here
 
     t = parameters_dictionary['t']
-    print(t)
+    starttime = time.time()
+    lshpairs = 0
     for pair in lsh_similarity_matrix:
+        lshpairs += 1
         if (pair[2] > t) and (pair not in naive_similarity_matrix):
             false_positives += 1
+    midtime = time.time()
+    naivepairs = 0
     for pair in naive_similarity_matrix:
+        naivepairs += 1
         if (pair not in lsh_similarity_matrix):
             false_negatives += 1
+    endtime = time.time()
     total_positives = len(lsh_similarity_matrix)
-    print("Total positives: ", total_positives)
+    """ print("\nLSH pairs checked: ", lshpairs,
+          "\nNaive pairs checked: ", naivepairs)
+    print("LSH computation time: ", (midtime - starttime),
+          "\nNaive computation time: ", (endtime - midtime)) """
+
+    print("\n\nTotal positives: ", total_positives)
     print("\"True\" positives = ", total_positives-false_positives, "\n")
 
     return false_negatives, false_positives

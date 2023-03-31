@@ -288,7 +288,7 @@ def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
             false_negatives += 1
     total_positives = len(lsh_similarity_matrix)
     print("Total positives: ", total_positives)
-    print("\"True\" positives = ", total_positives-false_positives, "\n\n")
+    print("\"True\" positives = ", total_positives-false_positives, "\n")
 
     return false_negatives, false_positives
 
@@ -364,7 +364,7 @@ if __name__ == '__main__':
     t14 = time.time()
     pairs = return_results(lsh_similarity_matrix)
     t15 = time.time()
-    print("The pairs of documents are:\n")
+    print("\nThe pairs of documents are:\n")
     for p in pairs:
         print(p)
     print("\n")
@@ -384,4 +384,4 @@ if __name__ == '__main__':
 
     print("LSH process took in total", t13 - t4, "sec")
     timeEnd = time.time()
-    print("Total time for entire program: ", timeEnd-timeStart, "sec")
+    print("Total time for entire program: ", timeEnd-timeStart, "sec\n\n")

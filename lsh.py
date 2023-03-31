@@ -245,10 +245,6 @@ def minHash(document_vector):
     # Gammel
     #signatures = np.full((num_permutations,num_documents), np.inf)
 
-    count = 0
-    perms = 0
-    docies = 0
-
     # Nye
     for i in range(num_documents):
         # Gammel
@@ -263,18 +259,15 @@ def minHash(document_vector):
             # Check if the number is prime
             if is_prime(p):
                 cont = False
-        perms += 1
+
         # nye
         for j in range(num_permutations):
             # gammel
             # for j in range(num_documents):
-            docies += 1
-            localcount = 1
+
             for sig in document_vector[j]:
 
                 hash_value = (a * sig + b) % p
-                count += 1
-                localcount += 1
 
                 if hash_value < signatures[i][j]:
                     signatures[i][j] = hash_value
@@ -407,7 +400,7 @@ def return_results(lsh_similarity_matrix):
             count += 1
             id1 = pair[0]
             id2 = pair[1]
-            print("Id1: ", id1, " Id2: ", id2, " similarity: ", threshold)
+            #print("Id1: ", id1, " Id2: ", id2, " similarity: ", threshold)
             document_pairs.append([id1, id2])
         # print(pair[2])
 
@@ -431,8 +424,9 @@ def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
     for pair in naive_similarity_matrix:
         if (pair not in lsh_similarity_matrix):
             false_negatives += 1
-
-    print("shape of lsh matrix: ", len(lsh_similarity_matrix))
+    total_positives = len(lsh_similarity_matrix)
+    print("Total positives: ", total_positives)
+    print("\"True\" positives = ", total_positives-false_positives, "\n\n")
 
     return false_negatives, false_positives
 
@@ -440,6 +434,8 @@ def count_false_neg_and_pos(lsh_similarity_matrix, naive_similarity_matrix):
 # DO NOT CHANGE THIS METHOD
 # The main method where all code starts
 if __name__ == '__main__':
+    timeStart = time.time()
+
     # Reading the parameters
     read_parameters()
     # print(parameters_dictionary['data'])
@@ -524,3 +520,5 @@ if __name__ == '__main__':
         print("Naive similarity calculation took", t3 - t2, "sec")
 
     print("LSH process took in total", t13 - t4, "sec")
+    timeEnd = time.time()
+    print("Total time for entire program: ", timeEnd-timeStart, "sec")
